@@ -1,5 +1,5 @@
 # SubNinja
-SubNinja is a Python-based DNS Active Bruteforce solution designed for subdomain enumeration and optimized for accurate results. It works efficiently on local machines without the need for a VPS and processes large wordlists by splitting them into manageable chunks. SubNinja is designed to:
+SubNinja is a Python-based DNS Active Bruteforce solution designed for subdomain enumeration made with ShuffleDNS and included advanced wildcard subdomain filtering and optimized for accurate results. It works efficiently on local machines without the need for a VPS and processes large wordlists by splitting them into manageable chunks. SubNinja is designed to:
 
 	•	Reduce false positives: By using wildcard IP filtering to ensure only valid subdomains are included in the results.
 
@@ -16,3 +16,59 @@ While the tool prioritizes accuracy, note that it may take time to process large
 
 
 cat results/chunk*_final.txt | sort | uniq > results/subs.txt
+
+
+
+# Usage
+
+	1.	Clone the repository:
+
+
+git clone https://github.com/SubNinja.py.git
+
+
+
+
+
+	2.	Install requirements:
+
+
+pip install -r requirements.txt
+
+
+
+	3.	Prepare your inputs:
+
+	•	Add resolvers to resolvers.txt.
+
+	•	Add your wordlist to wordlist.txt.
+
+	4.	Run the tool:
+
+
+python3 SubNinja.py 
+
+
+
+	5.	After the script completes, manually merge the final results:
+
+
+cat chunk*_final.txt | sort | uniq > subs.txt
+
+
+
+
+File Descriptions
+
+	•	SubNinja.py: Main script for DNS brute-forcing.
+
+	•	resolvers.txt: List of resolvers used by ShuffleDNS.
+
+	•	wordlist.txt: Wordlist for DNS enumeration.
+
+	•	filter_wildcard_ip.sh: Bash script for wildcard IP filtering.
+
+	•	requirements.txt: Python library dependencies.
+
+
+Enjoy discovering subdomains effortlessly!
