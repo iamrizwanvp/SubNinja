@@ -8,7 +8,7 @@ import requests
 CHUNKS_DIR = "chunks"
 RESULTS_DIR = "results"
 MAIN_DOMAIN = "your target domain"
-WILDCARD_IP = "66.254.114.181"
+WILDCARD_IP = "your wildcard ipof main domain"
 DISCORD_WEBHOOK_URL = "your discord webhook url"  # Replace with your webhook URL
 LINES_PER_CHUNK = 100000
 
