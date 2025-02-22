@@ -1,4 +1,3 @@
-
 import os
 import re
 import subprocess
@@ -7,9 +6,9 @@ import requests
 # Directories and constants
 CHUNKS_DIR = "chunks"
 RESULTS_DIR = "results"
-MAIN_DOMAIN = "your target domain"
-WILDCARD_IP = "your wildcard ipof main domain"
-DISCORD_WEBHOOK_URL = "your discord webhook url"  # Replace with your webhook URL
+MAIN_DOMAIN = "alasco.de"
+WILDCARD_IPS = ["141.101.90.107", "141.101.90.104", "141.101.90.105", "141.101.90.106"]
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1326843541078409318/Bl-ku08YLuUdYa9tomkfKtbf1zN_sxpFbCXaIz5hko3S86mbjnS3SfqYywKc56D0SRBY"
 LINES_PER_CHUNK = 100000
 
 # Ensure necessary directories exist
@@ -38,7 +37,6 @@ def create_chunks(wordlist):
         with open(chunk_file, "w") as outfile:
             outfile.writelines(chunk)
         print(f"[INFO] Chunk created: {chunk_file}")
-        # No notification sent here
     print(f"[INFO] Total chunks created: {len(chunks)}")
     return len(chunks)
 
@@ -63,10 +61,8 @@ def run_shuffledns(domain, resolvers, chunk_file, output_file):
         print(f"[INFO] ShuffleDNS completed for {chunk_file}. Results saved to {output_file}.")
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Error running ShuffleDNS for {chunk_file}: {e}")
-        
 
 # Function to filter valid subdomains
-
 def filter_subdomains(input_file, output_file, main_domain):
     print(f"[INFO] Starting subdomain filtering for {input_file}...")
     DOMAIN_REGEX = re.compile(r"^(?!\-)([a-zA-Z0-9\-]{1,63}\.)+[a-zA-Z]{2,63}$")
@@ -76,42 +72,43 @@ def filter_subdomains(input_file, output_file, main_domain):
             if DOMAIN_REGEX.match(domain) and domain.endswith(f".{main_domain}") and domain != main_domain:
                 outfile.write(domain + "\n")
     print(f"[INFO] Filtering complete for {input_file}. Results saved to {output_file}.")
-    
-    
-    
 
 # Function to call the bash script for wildcard IP filtering
-
-def filter_wildcard_ip(input_file, output_file, wildcard_ip):
+def filter_wildcard_ip(input_file, output_file, wildcard_ips):
     print(f"[INFO] Starting wildcard IP filtering for {input_file} using bash script...")
     try:
-        # Call the bash script
+        # Call the bash script with multiple wildcard IPs
         subprocess.run(
-            ["bash", "filter_wildcard_ip.sh", input_file, output_file, wildcard_ip],
+            ["bash", "filter_wildcard_ip.sh", input_file, output_file, *wildcard_ips],
             check=True
         )
         print(f"[INFO] Wildcard filtering complete for {input_file}. Results saved to {output_file}.")
-        # Notification only for final processing step
         send_notification(f"Final processing complete for {input_file}. Results saved to {output_file}.")
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Error during wildcard IP filtering: {e}")
         send_notification(f"Error during wildcard IP filtering for {input_file}: {e}")
 
+# Function to merge all final chunk files into a single file and clean up
+def finalize_results():
+    subs_file = os.path.join(RESULTS_DIR, "subs.txt")
+    print(f"[INFO] Merging all valid subdomains into {subs_file}...")
 
-# Function to merge all final chunk files into a single file
-def merge_final_chunks(output_file):
-    print(f"[INFO] Merging all final chunk files into {output_file}...")
-    with open(output_file, "w") as outfile:
+    with open(subs_file, "w") as outfile:
         for filename in sorted(os.listdir(RESULTS_DIR)):
-            if filename.endswith("_final.txt"):
+            if filename.endswith("_final.txt"):  
                 final_chunk_file = os.path.join(RESULTS_DIR, filename)
                 with open(final_chunk_file, "r") as infile:
                     outfile.write(infile.read())
-    print(f"[INFO] All final chunk files merged into {output_file}.")
-    send_notification(f"All final chunk files successfully merged into {output_file}.")
 
+    print(f"[INFO] All final chunk files merged into {subs_file}.")
+    send_notification(f"All final chunk files successfully merged into {subs_file}.")
 
+    # Cleanup: Delete unnecessary chunk files
+    for filename in os.listdir(RESULTS_DIR):
+        if filename.startswith("chunk") or filename.startswith("filtered_chunk"):
+            os.remove(os.path.join(RESULTS_DIR, filename))
 
+    print("[INFO] Cleanup complete. Only subs.txt remains.")
 # Main workflow
 def main(wordlist, resolvers, domain):
     print("[INFO] Script started.")
@@ -135,7 +132,10 @@ def main(wordlist, resolvers, domain):
             filter_subdomains(result_file, filtered_file, MAIN_DOMAIN)
 
             # Step 4: Filter wildcard IPs
-            filter_wildcard_ip(filtered_file, final_file, WILDCARD_IP)
+            filter_wildcard_ip(filtered_file, final_file, WILDCARD_IPS)
+
+        # Step 5: Merge results & clean up
+        finalize_results()
 
         print("[INFO] All tasks completed successfully.")
         send_notification("All tasks completed successfully.")
@@ -145,14 +145,8 @@ def main(wordlist, resolvers, domain):
 
 # Run the script
 if __name__ == "__main__":
-    wordlist_path = "wordlist.txt"  # Replace with your wordlist path
-    resolvers_path = "resolvers.txt"  # Replace with your resolvers path
-    target_domain = "your target domain "  # Target domain
+    wordlist_path = "/root/mass_recon/subdomains-top1million-110000.txt"
+    resolvers_path = "/root/alasco/resolvers.txt"
+    target_domain = "alasco.de"
 
     main(wordlist_path, resolvers_path, target_domain)
-    
-    
-    
-    
-    
-  
