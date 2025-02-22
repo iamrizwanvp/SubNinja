@@ -36,11 +36,8 @@ SubNinja is a Python-based DNS active brute-force tool designed for efficient su
 
    - Use your own wordlists (`wordlist.txt`).  
 
-5. **Manual Results Merging**: After processing, merge results using:  
+5. **Final output**: Final output will be inside the dir  /results/subs.txt 
 
-   ```bash
-
-   cat chunk*_final.txt | sort | uniq > subs.txt
 
 
 Requirements
@@ -70,10 +67,7 @@ python3 SubNinja.py
 
 
 
-	5.	Merge results manually after completion:
-
-
-cat chunk*_final.txt | sort | uniq > subs.txt
+	
 
 Setup
 
@@ -104,10 +98,7 @@ python3 SubNinja.py
 
 
 
-	5.	After completion, merge results manually using:
-
-
-cat chunk*_final.txt | sort | uniq > subs.txt
+	t
 
 
 File Descriptions
